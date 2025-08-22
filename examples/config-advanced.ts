@@ -2,10 +2,8 @@ import {
   ConfigManager,
   FileConfigSource,
   EnvConfigSource,
-  createStandardConfigManager,
   ExtractorServiceDiscovery,
   autoDiscoverService,
-  createServiceDiscovery,
   loadConfig,
   createLogger,
 } from "../src";
@@ -77,10 +75,12 @@ async function configurationExample() {
     `Validation result: ${validation.valid ? "✅ Valid" : "❌ Invalid"}`,
   );
   if (validation.errors.length > 0) {
-    logger.error("Validation errors:", validation.errors);
+    logger.error("Validation errors:");
+    validation.errors.forEach((error) => logger.error(`  • ${error}`));
   }
   if (validation.warnings.length > 0) {
-    logger.warn("Validation warnings:", validation.warnings);
+    logger.warn("Validation warnings:");
+    validation.warnings.forEach((warning) => logger.warn(`  • ${warning}`));
   }
 
   // Example 4: Service Discovery
