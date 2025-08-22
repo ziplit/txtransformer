@@ -254,6 +254,7 @@ describe("Configuration Management", () => {
 
     test("should load config from file", async () => {
       const configFile = path.join(TEST_TEMP_DIR, "load-test-config.json");
+      await fs.ensureDir(TEST_TEMP_DIR);
       await fs.writeFile(
         configFile,
         JSON.stringify({

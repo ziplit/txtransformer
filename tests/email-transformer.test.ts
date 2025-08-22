@@ -213,7 +213,7 @@ describe("EmailTransformer", () => {
       const invalidInput = null as any;
 
       await expect(transformer.transform(invalidInput)).rejects.toThrow(
-        "Email transformation failed",
+        "Email content cannot be null or undefined",
       );
     });
 

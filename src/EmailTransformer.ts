@@ -10,6 +10,24 @@ import { SchemaValidator } from "./validation";
 import { StorageFactory } from "./storage";
 import { ProcessingCache } from "./storage/cache";
 import { cleanupManager } from "./storage/cleanup";
+import {
+  createLogger,
+  logger as defaultLogger,
+  TransformerError,
+  EmailParsingError,
+  AttachmentProcessingError,
+  ValidationError,
+  StorageError,
+  logError,
+  logPerformance,
+  LoggerOptions,
+} from "./logger";
+import {
+  TransformationEventEmitter,
+  createTransformationContext,
+  TransformationContext,
+} from "./events";
+import { Logger } from "pino";
 
 export interface TransformationResult {
   /** Extraction result */
@@ -24,14 +42,20 @@ export interface TransformationResult {
   };
 }
 
-export class EmailTransformer {
+export class EmailTransformer extends TransformationEventEmitter {
   private config: TransformerConfig;
   private emailParser: EmailParser;
   private attachmentHandler: AttachmentHandler;
   private schemaValidator: SchemaValidator;
   private processingCache: ProcessingCache;
+  private logger: Logger;
 
-  constructor(config: Partial<TransformerConfig> = {}) {
+  constructor(
+    config: Partial<TransformerConfig> = {},
+    loggerOptions?: LoggerOptions,
+  ) {
+    super();
+
     // Set default configuration
     this.config = {
       pythonExtractorUrl: config.pythonExtractorUrl || "http://localhost:8000",
@@ -40,6 +64,9 @@ export class EmailTransformer {
       timeout: config.timeout || 30000,
       ...config,
     };
+
+    // Initialize logger
+    this.logger = loggerOptions ? createLogger(loggerOptions) : defaultLogger;
 
     // Initialize components
     this.emailParser = new EmailParser({
@@ -79,21 +106,91 @@ export class EmailTransformer {
    * Transform email content to structured data
    */
   async transform(email: string | Buffer): Promise<ExtractionResult> {
-    const startTime = Date.now();
+    // Validate input
+    if (email === null || email === undefined) {
+      throw new TransformerError(
+        "Email content cannot be null or undefined",
+        "INVALID_INPUT",
+      );
+    }
+
+    // Create transformation context
+    const context = createTransformationContext(
+      this.generateEmailHash(email),
+      this,
+    );
+
+    this.logger.info(
+      { transformationId: context.id },
+      "Starting email transformation",
+    );
+
+    this.emit("transformation:started", {
+      id: context.id,
+      email: {} as EmailCanonical, // Will be populated after parsing
+    });
 
     try {
       // Parse email
+      context.progress.nextStage("parsing");
+      this.logger.debug({ transformationId: context.id }, "Parsing email");
+
       const parseResult = await this.emailParser.parseEmail(email);
       const canonicalEmail = parseResult.email;
 
+      this.emit("email:parsed", {
+        id: context.id,
+        email: canonicalEmail,
+        metadata: parseResult.metadata,
+      });
+
+      // Update transformation started event with actual email data
+      this.emit("transformation:started", {
+        id: context.id,
+        email: canonicalEmail,
+      });
+
       // Process attachments
+      context.progress.nextStage("attachment-processing");
+      this.logger.debug(
+        {
+          transformationId: context.id,
+          attachmentCount: canonicalEmail.attachments.length,
+        },
+        "Processing attachments",
+      );
+
+      this.emit("attachments:processing-started", {
+        id: context.id,
+        count: canonicalEmail.attachments.length,
+      });
+
       const attachmentResults = await this.attachmentHandler.processAttachments(
         canonicalEmail.attachments,
       );
 
+      const attachmentStats =
+        this.attachmentHandler.getAttachmentStats(attachmentResults);
+      this.emit("attachments:processed", {
+        id: context.id,
+        results: attachmentResults,
+        stats: attachmentStats,
+      });
+
+      // Log blocked attachments
+      attachmentResults
+        .filter((result) => !result.metadata.isProcessable)
+        .forEach((result) => {
+          this.emit("attachment:blocked", {
+            id: context.id,
+            attachment: result.attachment,
+            reason: result.metadata.securityFlags.join(", "),
+          });
+        });
+
       // Check cache for existing results
+      context.progress.nextStage("caching");
       let extractionResult: ExtractionResult;
-      const emailHash = this.generateEmailHash(email);
 
       if (this.config.enableCaching) {
         const cached = await this.processingCache.getCachedTextExtraction(
@@ -101,17 +198,50 @@ export class EmailTransformer {
         );
 
         if (cached) {
-          // Parse cached result
+          this.emit("cache:hit", { id: context.id, key: "text-extraction" });
+          this.logger.debug(
+            { transformationId: context.id },
+            "Cache hit for transformation",
+          );
+
           extractionResult = JSON.parse(cached);
-          extractionResult.metadata.processingTime = Date.now() - startTime;
+          extractionResult.metadata.processingTime =
+            Date.now() - context.startTime;
+
+          context.progress.complete();
+          this.emit("transformation:completed", {
+            id: context.id,
+            result: extractionResult,
+            duration: extractionResult.metadata.processingTime,
+          });
+
+          logPerformance(
+            this.logger,
+            "email-transformation",
+            context.startTime,
+            {
+              cached: true,
+              attachmentCount: canonicalEmail.attachments.length,
+            },
+          );
+
           return extractionResult;
+        } else {
+          this.emit("cache:miss", { id: context.id, key: "text-extraction" });
         }
       }
 
-      // Perform extraction (placeholder for now)
+      // Perform extraction
+      context.progress.nextStage("extraction");
+      this.logger.debug(
+        { transformationId: context.id },
+        "Performing extraction",
+      );
+
       extractionResult = await this.performExtraction(
         canonicalEmail,
         attachmentResults,
+        context,
       );
 
       // Cache result if enabled
@@ -120,16 +250,47 @@ export class EmailTransformer {
           Buffer.isBuffer(email) ? email : Buffer.from(email),
           JSON.stringify(extractionResult),
         );
+        this.emit("cache:stored", { id: context.id, key: "text-extraction" });
       }
 
       // Update processing time
-      extractionResult.metadata.processingTime = Date.now() - startTime;
+      extractionResult.metadata.processingTime = Date.now() - context.startTime;
+
+      context.progress.complete();
+      this.emit("transformation:completed", {
+        id: context.id,
+        result: extractionResult,
+        duration: extractionResult.metadata.processingTime,
+      });
+
+      logPerformance(this.logger, "email-transformation", context.startTime, {
+        schemaType: extractionResult.schemaType,
+        confidence: extractionResult.confidence,
+        attachmentCount: canonicalEmail.attachments.length,
+      });
 
       return extractionResult;
     } catch (error) {
-      throw new Error(
-        `Email transformation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      const transformationError =
+        error instanceof TransformerError
+          ? error
+          : new TransformerError(
+              `Email transformation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+              "TRANSFORMATION_ERROR",
+              { originalError: error },
+            );
+
+      logError(this.logger, transformationError, {
+        transformationId: context.id,
+      });
+
+      this.emit("transformation:failed", {
+        id: context.id,
+        error: transformationError,
+        duration: Date.now() - context.startTime,
+      });
+
+      throw transformationError;
     }
   }
 
@@ -211,6 +372,7 @@ export class EmailTransformer {
   private async performExtraction(
     email: EmailCanonical,
     attachments: AttachmentProcessingResult[],
+    context?: TransformationContext,
   ): Promise<ExtractionResult> {
     // This is a placeholder implementation
     // In a full implementation, this would:
@@ -218,6 +380,14 @@ export class EmailTransformer {
     // 2. Apply schema validation
     // 3. Perform confidence scoring
     // 4. Generate provenance information
+
+    // Emit schema validation events
+    if (context) {
+      this.emit("schema:validation-started", {
+        id: context.id,
+        schemaType: "generic_message",
+      });
+    }
 
     // For now, return a basic result with generic message classification
     const validationResult = this.schemaValidator.validateAgainstDomainSchemas({
@@ -233,6 +403,15 @@ export class EmailTransformer {
       },
       bodySummary: email.text.substring(0, 200),
     });
+
+    if (context) {
+      this.emit("schema:validation-completed", {
+        id: context.id,
+        schemaType: validationResult.detectedDomain || "generic_message",
+        valid: validationResult.valid,
+        confidence: 0.5,
+      });
+    }
 
     // Create basic generic message data
     const genericData = {

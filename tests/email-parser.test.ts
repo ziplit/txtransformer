@@ -1,8 +1,17 @@
 import { EmailParser } from "../src/email-parser";
-import { TEST_EMAIL_CONTENT, TEST_EMAIL_WITH_ATTACHMENT } from "./setup";
+import {
+  TEST_EMAIL_CONTENT,
+  TEST_EMAIL_WITH_ATTACHMENT,
+  TEST_TEMP_DIR,
+} from "./setup";
+import * as fs from "fs-extra";
 
 describe("EmailParser", () => {
   let parser: EmailParser;
+
+  beforeAll(async () => {
+    await fs.ensureDir(TEST_TEMP_DIR);
+  });
 
   beforeEach(() => {
     parser = new EmailParser();

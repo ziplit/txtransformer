@@ -1,8 +1,13 @@
 import { SchemaValidator } from "../src/validation";
 import { TEST_TEMP_DIR } from "./setup";
+import * as fs from "fs-extra";
 
 describe("SchemaValidator", () => {
   let validator: SchemaValidator;
+
+  beforeAll(async () => {
+    await fs.ensureDir(TEST_TEMP_DIR);
+  });
 
   beforeEach(() => {
     validator = new SchemaValidator();
