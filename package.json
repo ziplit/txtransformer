@@ -1,0 +1,49 @@
+{
+  "name": "@ziplit/txtransformer",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "python-extractor"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon --exec ts-node examples/basic.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build",
+    "extractor:build": "cd python-extractor && docker build -t email-extractor .",
+    "extractor:start": "docker run --rm -d -p 8000:8000 --name email-extractor email-extractor",
+    "extractor:stop": "docker stop email-extractor || true"
+  },
+  "keywords": [
+    "email",
+    "extraction",
+    "nlp",
+    "ocr",
+    "parsing",
+    "structured-data"
+  ],
+  "author": "Ziplit",
+  "license": "MIT",
+  "description": "TypeScript library for extracting structured data from emails and attachments",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ziplit/txtransformer"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^24.3.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "fs-extra": "^11.3.1",
+    "mailparser": "^3.7.4",
+    "pino": "^9.9.0",
+    "zod": "^4.0.17"
+  }
+}

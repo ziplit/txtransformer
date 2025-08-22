@@ -1,0 +1,32 @@
+FROM node:18-alpine AS base
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+FROM base AS development
+# Install all dependencies for development
+RUN npm ci
+# Copy source code
+COPY src/ ./src/
+COPY tsconfig.json ./
+# Expose port
+EXPOSE 3000
+# Start in dev mode
+CMD ["npm", "run", "dev"]
+
+FROM base AS production
+# Install all dependencies first (needed for build)
+RUN npm ci
+# Copy source code
+COPY src/ ./src/
+COPY tsconfig.json ./
+# Build TypeScript
+RUN npm run build
+# Remove dev dependencies 
+RUN npm prune --omit=dev
+# Expose port
+EXPOSE 3000
+# Start the application
+CMD ["npm", "start"]

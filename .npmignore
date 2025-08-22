@@ -1,0 +1,40 @@
+# Source files
+src/
+examples/
+*.ts
+
+# Development files
+.git/
+.github/
+docker-compose.yml
+Dockerfile.node
+.dockerignore
+tsconfig.json
+nodemon.json
+
+# Documentation
+README.md
+TASKS.md
+PRD.md
+
+# Logs and temp files
+*.log
+npm-debug.log*
+.nyc_output
+coverage/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python files (keep the extractor directory but exclude temp files)
+python-extractor/__pycache__/
+python-extractor/*.pyc
+python-extractor/.pytest_cache/
