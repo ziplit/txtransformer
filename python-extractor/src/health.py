@@ -159,6 +159,11 @@ class HealthChecker:
         dependencies["camelot"] = await self._check_camelot()
         dependencies["pdfplumber"] = await self._check_pdfplumber()
         
+        # Check deterministic extraction dependencies
+        dependencies["postal"] = await self._check_postal()
+        dependencies["dateparser"] = await self._check_dateparser()
+        dependencies["price_parser"] = await self._check_price_parser()
+        
         return {"dependencies": dependencies}
     
     async def _check_python_env(self) -> Dict[str, Any]:
@@ -332,5 +337,72 @@ class HealthChecker:
             
         except ImportError:
             return {"available": False, "error": "pdfplumber not installed"}
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_postal(self) -> Dict[str, Any]:
+        """Check postal (libpostal) availability for address parsing"""
+        try:
+            import postal.parser
+            import postal.expand
+            
+            return {
+                "available": True,
+                "modules": ["postal.parser", "postal.expand"],
+                "note": "libpostal available for address parsing"
+            }
+            
+        except ImportError:
+            return {
+                "available": False, 
+                "error": "postal not installed. Install with: pip install postal",
+                "note": "Address extraction will use regex fallback"
+            }
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_dateparser(self) -> Dict[str, Any]:
+        """Check dateparser availability for flexible date parsing"""
+        try:
+            import dateparser
+            
+            # Test basic parsing
+            test_date = dateparser.parse("January 1, 2024")
+            
+            return {
+                "available": True,
+                "version": getattr(dateparser, '__version__', 'unknown'),
+                "test_successful": test_date is not None
+            }
+            
+        except ImportError:
+            return {
+                "available": False,
+                "error": "dateparser not installed", 
+                "note": "Date extraction will use regex fallback"
+            }
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_price_parser(self) -> Dict[str, Any]:
+        """Check price-parser availability for monetary value parsing"""
+        try:
+            from price_parser import Price
+            
+            # Test basic parsing
+            test_price = Price.fromstring("$19.99")
+            
+            return {
+                "available": True,
+                "test_successful": test_price.amount is not None,
+                "test_amount": str(test_price.amount) if test_price.amount else None
+            }
+            
+        except ImportError:
+            return {
+                "available": False,
+                "error": "price-parser not installed",
+                "note": "Price extraction will use regex fallback"
+            }
         except Exception as e:
             return {"available": False, "error": str(e)}

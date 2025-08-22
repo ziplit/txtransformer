@@ -26,6 +26,8 @@ dependencies = [
     "psutil>=5.9.6",
     "en-core-web-sm",
     "pdf2image>=1.17.0",
+    "price-parser>=0.3.4",
+    "babel>=2.14.0",
 ]
 
 [project.scripts]
@@ -43,4 +45,7 @@ dev = [
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
     "pytest-mock>=3.14.1",
+]
+deterministic = [
+    "postal>=1.1.10",
 ]
