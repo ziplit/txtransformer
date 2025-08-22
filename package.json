@@ -10,7 +10,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --exec ts-node examples/basic.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run build",
     "prettier": "prettier --write .",
     "extractor:build": "cd python-extractor && docker build -t email-extractor .",
@@ -34,10 +36,13 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^30.0.0",
     "@types/mailparser": "^3.4.6",
     "@types/node": "^24.3.0",
+    "jest": "^30.0.5",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
