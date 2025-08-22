@@ -25,6 +25,7 @@ dependencies = [
     "requests>=2.31.0",
     "psutil>=5.9.6",
     "en-core-web-sm",
+    "pdf2image>=1.17.0",
 ]
 
 [project.scripts]
@@ -35,3 +36,11 @@ packages = ["src"]
 
 [tool.uv.sources]
 en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
+    "pytest-mock>=3.14.1",
+]

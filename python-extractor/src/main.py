@@ -12,9 +12,11 @@ from fastapi.responses import JSONResponse
 import uvicorn
 
 from .config import settings
-from .dependencies import get_health_checker, get_logger
+from .dependencies import get_health_checker, get_logger, get_processor_registry
 from .health import HealthChecker
 from .logger import setup_logging
+from .processor_registry import ProcessorRegistry
+from .processors.base_processor import ProcessingContext
 
 
 @asynccontextmanager
@@ -76,12 +78,20 @@ async def readiness_check(health_checker: HealthChecker = Depends(get_health_che
 
 
 @app.post("/extract")
-async def extract_email(
+async def extract_document(
+    file_content: bytes = None,
+    filename: str = None,
+    mime_type: str = None,
     logger = Depends(get_logger),
-    health_checker: HealthChecker = Depends(get_health_checker)
+    health_checker: HealthChecker = Depends(get_health_checker),
+    processor_registry: ProcessorRegistry = Depends(get_processor_registry)
 ):
-    """Extract structured data from email"""
-    logger.info("Extraction endpoint called")
+    """Extract structured data from documents (email, PDF, Word, Excel, CSV)"""
+    logger.info("Document extraction endpoint called", extra={
+        "input_filename": filename,
+        "input_mime_type": mime_type,
+        "has_content": bool(file_content)
+    })
     
     # Check if service is ready
     readiness_status = await health_checker.check_readiness()
@@ -91,7 +101,39 @@ async def extract_email(
             detail="Service not ready for processing"
         )
     
-    return {"message": "Extraction endpoint - coming soon"}
+    # For now, return basic information about supported processors
+    if not file_content and not filename:
+        return {
+            "message": "Document extraction service ready",
+            "supported_types": processor_registry.get_supported_types(),
+            "processors": processor_registry.get_processor_info()
+        }
+    
+    # TODO: Implement actual file processing after OCR & Image Processing (Task 3.3)
+    # This will be implemented after completing:
+    # - Task 3.3: OCR & Image Processing
+    # - Task 3.4: Table Extraction  
+    # - Task 3.5: Deterministic Extraction
+    
+    return {
+        "message": "Document processing implementation coming soon - completing OCR setup first",
+        "received": {
+            "input_filename": filename,
+            "mime_type": mime_type,
+            "content_size": len(file_content) if file_content else 0
+        }
+    }
+
+
+@app.get("/processors")
+async def list_processors(
+    processor_registry: ProcessorRegistry = Depends(get_processor_registry)
+):
+    """List available document processors and their capabilities"""
+    return {
+        "processors": processor_registry.get_processor_info(),
+        "supported_types": processor_registry.get_supported_types()
+    }
 
 
 @app.exception_handler(Exception)

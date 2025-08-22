@@ -6,6 +6,7 @@ import logging
 from typing import Generator
 
 from .health import HealthChecker
+from .processor_registry import processor_registry
 
 
 def get_logger() -> logging.Logger:
@@ -28,3 +29,8 @@ def get_health_checker_singleton() -> HealthChecker:
     if _health_checker is None:
         _health_checker = HealthChecker()
     return _health_checker
+
+
+def get_processor_registry():
+    """Get the global processor registry instance"""
+    return processor_registry

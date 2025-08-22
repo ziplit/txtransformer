@@ -146,6 +146,8 @@ class HealthChecker:
         # Check OCR capabilities
         if settings.ocr_enabled:
             dependencies["tesseract"] = await self._check_tesseract()
+            dependencies["opencv"] = await self._check_opencv()
+            dependencies["pdf2image"] = await self._check_pdf2image()
         
         # Check spaCy model
         dependencies["spacy"] = await self._check_spacy_model()
@@ -225,6 +227,52 @@ class HealthChecker:
                     "error": f"spaCy model '{settings.spacy_model}' not found. Run: python -m spacy download {settings.spacy_model}"
                 }
             return {"available": False, "error": str(e)}
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_opencv(self) -> Dict[str, Any]:
+        """Check OpenCV availability for image processing"""
+        try:
+            import cv2
+            
+            return {
+                "available": True,
+                "version": cv2.__version__,
+                "build_info": "OpenCV available for image preprocessing"
+            }
+            
+        except ImportError:
+            return {"available": False, "error": "opencv-python not installed"}
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_pdf2image(self) -> Dict[str, Any]:
+        """Check pdf2image availability for PDF to image conversion"""
+        try:
+            import pdf2image
+            
+            # Try to check if poppler is available (required by pdf2image)
+            try:
+                from pdf2image.exceptions import PDFInfoNotInstalledError
+                # This will raise an exception if poppler is not installed
+                pdf2image.pdfinfo_from_path("nonexistent.pdf")
+            except PDFInfoNotInstalledError:
+                return {
+                    "available": False,
+                    "error": "poppler-utils not installed. Install with: brew install poppler (macOS) or apt-get install poppler-utils (Ubuntu)"
+                }
+            except:
+                # Other errors are expected for non-existent file
+                pass
+            
+            return {
+                "available": True,
+                "module": "pdf2image",
+                "note": "PDF to image conversion available"
+            }
+            
+        except ImportError:
+            return {"available": False, "error": "pdf2image not installed"}
         except Exception as e:
             return {"available": False, "error": str(e)}
     
