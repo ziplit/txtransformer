@@ -155,6 +155,10 @@ class HealthChecker:
         # Check temp directory writability
         dependencies["temp_storage"] = await self._check_temp_storage()
         
+        # Check table extraction dependencies
+        dependencies["camelot"] = await self._check_camelot()
+        dependencies["pdfplumber"] = await self._check_pdfplumber()
+        
         return {"dependencies": dependencies}
     
     async def _check_python_env(self) -> Dict[str, Any]:
@@ -296,5 +300,37 @@ class HealthChecker:
                 "writable": True
             }
             
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_camelot(self) -> Dict[str, Any]:
+        """Check Camelot table extraction availability"""
+        try:
+            import camelot
+            
+            return {
+                "available": True,
+                "version": getattr(camelot, '__version__', 'unknown'),
+                "note": "Camelot table extraction available"
+            }
+            
+        except ImportError:
+            return {"available": False, "error": "camelot-py not installed"}
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+    
+    async def _check_pdfplumber(self) -> Dict[str, Any]:
+        """Check pdfplumber availability for fallback table extraction"""
+        try:
+            import pdfplumber
+            
+            return {
+                "available": True,
+                "version": getattr(pdfplumber, '__version__', 'unknown'),
+                "note": "pdfplumber fallback extraction available"
+            }
+            
+        except ImportError:
+            return {"available": False, "error": "pdfplumber not installed"}
         except Exception as e:
             return {"available": False, "error": str(e)}
