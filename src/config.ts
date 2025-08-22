@@ -1,6 +1,11 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import { TransformerConfig, StorageAdapter } from "./types";
+import {
+  autoDiscoverService,
+  ExtractorServiceDiscovery,
+  createServiceDiscovery,
+} from "./service-discovery";
 
 export interface ConfigurationSource {
   /** Load configuration from source */
@@ -123,6 +128,50 @@ export class EnvConfigSource implements ConfigurationSource {
       config.storage = {
         type: storageType as any,
       };
+    }
+
+    // Service discovery configuration
+    const serviceDiscoveryEnabled =
+      process.env[`${this.prefix}SERVICE_DISCOVERY_ENABLED`];
+    const serviceDiscoveryCandidates =
+      process.env[`${this.prefix}SERVICE_DISCOVERY_CANDIDATES`];
+    const serviceDiscoveryTimeout =
+      process.env[`${this.prefix}SERVICE_DISCOVERY_TIMEOUT`];
+    const serviceDiscoveryInterval =
+      process.env[`${this.prefix}SERVICE_DISCOVERY_INTERVAL`];
+
+    if (
+      serviceDiscoveryEnabled ||
+      serviceDiscoveryCandidates ||
+      serviceDiscoveryTimeout ||
+      serviceDiscoveryInterval
+    ) {
+      config.serviceDiscovery = {};
+
+      if (serviceDiscoveryEnabled !== undefined) {
+        config.serviceDiscovery.enabled =
+          serviceDiscoveryEnabled.toLowerCase() === "true";
+      }
+
+      if (serviceDiscoveryCandidates) {
+        config.serviceDiscovery.candidates = serviceDiscoveryCandidates
+          .split(",")
+          .map((url) => url.trim());
+      }
+
+      if (serviceDiscoveryTimeout) {
+        const timeout = parseInt(serviceDiscoveryTimeout, 10);
+        if (!isNaN(timeout)) {
+          config.serviceDiscovery.healthCheckTimeout = timeout;
+        }
+      }
+
+      if (serviceDiscoveryInterval) {
+        const interval = parseInt(serviceDiscoveryInterval, 10);
+        if (!isNaN(interval)) {
+          config.serviceDiscovery.healthCheckInterval = interval;
+        }
+      }
     }
 
     return config;
@@ -299,6 +348,37 @@ export class ConfigManager {
       }
     }
 
+    // Validate service discovery configuration
+    if (config.serviceDiscovery) {
+      if (config.serviceDiscovery.candidates) {
+        for (const candidate of config.serviceDiscovery.candidates) {
+          try {
+            new URL(candidate);
+          } catch {
+            errors.push(
+              `Invalid service discovery candidate URL: ${candidate}`,
+            );
+          }
+        }
+      }
+
+      if (config.serviceDiscovery.healthCheckTimeout !== undefined) {
+        if (config.serviceDiscovery.healthCheckTimeout < 1000) {
+          errors.push(
+            "serviceDiscovery.healthCheckTimeout must be at least 1000ms",
+          );
+        }
+      }
+
+      if (config.serviceDiscovery.healthCheckInterval !== undefined) {
+        if (config.serviceDiscovery.healthCheckInterval < 5000) {
+          errors.push(
+            "serviceDiscovery.healthCheckInterval must be at least 5000ms",
+          );
+        }
+      }
+    }
+
     return {
       valid: errors.length === 0,
       errors,
@@ -311,6 +391,34 @@ export class ConfigManager {
    */
   clearCache(): void {
     this.cachedConfig = undefined;
+  }
+
+  /**
+   * Auto-discover services and update configuration
+   */
+  async discoverServices(): Promise<TransformerConfig> {
+    const currentConfig = await this.load();
+    const updatedConfig = await autoDiscoverService(currentConfig);
+
+    if (updatedConfig.pythonExtractorUrl !== currentConfig.pythonExtractorUrl) {
+      console.log(
+        `Discovered Python extractor service at: ${updatedConfig.pythonExtractorUrl}`,
+      );
+      this.cachedConfig = updatedConfig;
+    }
+
+    return updatedConfig;
+  }
+
+  /**
+   * Create service discovery instance
+   */
+  createServiceDiscovery(): ExtractorServiceDiscovery | null {
+    if (!this.cachedConfig) {
+      throw new Error("Configuration not loaded. Call load() first.");
+    }
+
+    return createServiceDiscovery(this.cachedConfig);
   }
 
   /**
@@ -375,6 +483,36 @@ export class ConfigManager {
             },
           },
         },
+        serviceDiscovery: {
+          type: "object",
+          properties: {
+            enabled: {
+              type: "boolean",
+              description: "Enable automatic service discovery",
+              default: true,
+            },
+            candidates: {
+              type: "array",
+              items: {
+                type: "string",
+                format: "uri",
+              },
+              description: "List of candidate service URLs to check",
+            },
+            healthCheckTimeout: {
+              type: "number",
+              minimum: 1000,
+              description: "Health check timeout in milliseconds",
+              default: 5000,
+            },
+            healthCheckInterval: {
+              type: "number",
+              minimum: 5000,
+              description: "Health check interval in milliseconds",
+              default: 30000,
+            },
+          },
+        },
       },
       required: ["tempDir", "timeout"],
     };
@@ -403,6 +541,12 @@ export class ConfigManager {
           typeof merged.storage === "object"
         ) {
           merged.storage = { ...merged.storage, ...value };
+        } else if (
+          key === "serviceDiscovery" &&
+          typeof value === "object" &&
+          typeof merged.serviceDiscovery === "object"
+        ) {
+          merged.serviceDiscovery = { ...merged.serviceDiscovery, ...value };
         } else {
           (merged as any)[key] = value;
         }

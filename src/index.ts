@@ -42,6 +42,17 @@ export {
 } from "./config";
 export type { ConfigurationSource, ConfigValidationResult } from "./config";
 
+// Service Discovery exports
+export {
+  ExtractorServiceDiscovery,
+  createServiceDiscovery,
+  autoDiscoverService,
+} from "./service-discovery";
+export type {
+  ServiceEndpoint,
+  ServiceDiscoveryOptions,
+} from "./service-discovery";
+
 // Storage exports
 export {
   StorageFactory,

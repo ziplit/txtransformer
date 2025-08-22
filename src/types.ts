@@ -24,6 +24,14 @@ export interface TransformerConfig {
     type: "filesystem" | "memory" | "custom";
     adapter?: StorageAdapter;
   };
+
+  /** Service discovery configuration */
+  serviceDiscovery?: {
+    enabled?: boolean;
+    candidates?: string[];
+    healthCheckTimeout?: number;
+    healthCheckInterval?: number;
+  };
 }
 
 export interface ExtractionResult {

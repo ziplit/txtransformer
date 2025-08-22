@@ -285,4 +285,129 @@ describe("Configuration Management", () => {
       }
     });
   });
+
+  describe("Enhanced Configuration Features", () => {
+    let manager: ConfigManager;
+
+    beforeEach(() => {
+      manager = new ConfigManager({
+        tempDir: TEST_TEMP_DIR,
+        timeout: 30000,
+        enableCaching: true,
+      });
+    });
+
+    test("should validate service discovery configuration", () => {
+      const configWithServiceDiscovery: Partial<TransformerConfig> = {
+        tempDir: TEST_TEMP_DIR,
+        timeout: 30000,
+        serviceDiscovery: {
+          enabled: true,
+          candidates: ["http://localhost:8000", "invalid-url"],
+          healthCheckTimeout: 500, // Too low
+          healthCheckInterval: 1000, // Too low
+        },
+      };
+
+      const validation = manager.validate(configWithServiceDiscovery);
+      expect(validation.valid).toBe(false);
+      expect(validation.errors).toContain(
+        "Invalid service discovery candidate URL: invalid-url",
+      );
+      expect(validation.errors).toContain(
+        "serviceDiscovery.healthCheckTimeout must be at least 1000ms",
+      );
+      expect(validation.errors).toContain(
+        "serviceDiscovery.healthCheckInterval must be at least 5000ms",
+      );
+    });
+
+    test("should merge service discovery configuration correctly", () => {
+      const base = {
+        serviceDiscovery: {
+          enabled: true,
+          candidates: ["http://localhost:8000"],
+        },
+      };
+
+      const override = {
+        serviceDiscovery: {
+          healthCheckTimeout: 5000,
+          candidates: ["http://override:8000"],
+        },
+      };
+
+      const merged = manager["mergeConfigs"](base, override);
+      expect(merged.serviceDiscovery).toEqual({
+        enabled: true,
+        candidates: ["http://override:8000"],
+        healthCheckTimeout: 5000,
+      });
+    });
+
+    test("should include service discovery in schema", () => {
+      const schema = manager.getSchema();
+      expect(schema.properties.serviceDiscovery).toBeDefined();
+      expect(
+        schema.properties.serviceDiscovery.properties.enabled,
+      ).toBeDefined();
+      expect(
+        schema.properties.serviceDiscovery.properties.candidates,
+      ).toBeDefined();
+    });
+  });
+
+  describe("Environment Variables - Service Discovery", () => {
+    let source: EnvConfigSource;
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      source = new EnvConfigSource("TEST_SD_");
+      // Clear test environment variables
+      Object.keys(process.env).forEach((key) => {
+        if (key.startsWith("TEST_SD_")) {
+          delete process.env[key];
+        }
+      });
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    test("should load service discovery from environment variables", async () => {
+      process.env.TEST_SD_SERVICE_DISCOVERY_ENABLED = "true";
+      process.env.TEST_SD_SERVICE_DISCOVERY_CANDIDATES =
+        "http://svc1:8000,http://svc2:8000";
+      process.env.TEST_SD_SERVICE_DISCOVERY_TIMEOUT = "3000";
+      process.env.TEST_SD_SERVICE_DISCOVERY_INTERVAL = "15000";
+
+      const config = await source.load();
+
+      expect(config.serviceDiscovery?.enabled).toBe(true);
+      expect(config.serviceDiscovery?.candidates).toEqual([
+        "http://svc1:8000",
+        "http://svc2:8000",
+      ]);
+      expect(config.serviceDiscovery?.healthCheckTimeout).toBe(3000);
+      expect(config.serviceDiscovery?.healthCheckInterval).toBe(15000);
+    });
+
+    test("should handle partial service discovery configuration", async () => {
+      process.env.TEST_SD_SERVICE_DISCOVERY_ENABLED = "false";
+
+      const config = await source.load();
+      expect(config.serviceDiscovery?.enabled).toBe(false);
+      expect(config.serviceDiscovery?.candidates).toBeUndefined();
+    });
+
+    test("should ignore invalid timeout values", async () => {
+      process.env.TEST_SD_SERVICE_DISCOVERY_TIMEOUT = "invalid";
+      process.env.TEST_SD_SERVICE_DISCOVERY_INTERVAL = "not-a-number";
+
+      const config = await source.load();
+      expect(config.serviceDiscovery?.healthCheckTimeout).toBeUndefined();
+      expect(config.serviceDiscovery?.healthCheckInterval).toBeUndefined();
+    });
+  });
 });
