@@ -5,7 +5,14 @@
   "description": "Customer support ticket follow-up or update",
   "domain": "support_followup",
   "version": "v1",
-  "vendor_tags": ["zendesk", "freshdesk", "servicenow", "jira", "intercom", "salesforce"],
+  "vendor_tags": [
+    "zendesk",
+    "freshdesk",
+    "servicenow",
+    "jira",
+    "intercom",
+    "salesforce"
+  ],
   "type": "object",
   "properties": {
     "ticketId": {
@@ -30,7 +37,14 @@
     },
     "status": {
       "type": "string",
-      "enum": ["open", "pending", "in_progress", "resolved", "closed", "on_hold"],
+      "enum": [
+        "open",
+        "pending",
+        "in_progress",
+        "resolved",
+        "closed",
+        "on_hold"
+      ],
       "description": "Current ticket status"
     },
     "priority": {

@@ -5,7 +5,14 @@
   "description": "System monitoring alert or notification",
   "domain": "alert",
   "version": "v1",
-  "vendor_tags": ["datadog", "newrelic", "pagerduty", "opsgenie", "splunk", "sentry"],
+  "vendor_tags": [
+    "datadog",
+    "newrelic",
+    "pagerduty",
+    "opsgenie",
+    "splunk",
+    "sentry"
+  ],
   "type": "object",
   "properties": {
     "alertId": {

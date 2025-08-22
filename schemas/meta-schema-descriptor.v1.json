@@ -18,7 +18,7 @@
       "type": "string",
       "enum": [
         "order",
-        "invoice", 
+        "invoice",
         "booking",
         "signature_request",
         "alert",
@@ -71,7 +71,7 @@
           "description": "Minimum confidence required to use this schema"
         },
         "high": {
-          "type": "number", 
+          "type": "number",
           "minimum": 0,
           "maximum": 1,
           "description": "Threshold for high confidence classification"

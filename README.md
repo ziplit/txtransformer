@@ -20,17 +20,17 @@ npm install @ziplit/txtransformer
 ## Quick Start
 
 ```typescript
-import { EmailTransformer } from '@ziplit/txtransformer';
+import { EmailTransformer } from "@ziplit/txtransformer";
 
 const transformer = new EmailTransformer({
-  tempDir: './temp',
-  enableCaching: true
+  tempDir: "./temp",
+  enableCaching: true,
 });
 
 // Transform email content
 const result = await transformer.transform(emailContent);
-console.log('Extracted data:', result.data);
-console.log('Confidence:', result.confidence);
+console.log("Extracted data:", result.data);
+console.log("Confidence:", result.confidence);
 ```
 
 ## With Python Extractor
@@ -45,8 +45,8 @@ npm run extractor:start
 
 ```typescript
 const transformer = new EmailTransformer({
-  pythonExtractorUrl: 'http://localhost:8000',
-  tempDir: './temp'
+  pythonExtractorUrl: "http://localhost:8000",
+  tempDir: "./temp",
 });
 
 const result = await transformer.transform(emailContent);
@@ -56,12 +56,13 @@ const result = await transformer.transform(emailContent);
 
 ```typescript
 interface TransformerConfig {
-  pythonExtractorUrl?: string;  // Python service URL
-  tempDir: string;              // Temporary files directory  
-  enableCaching: boolean;       // Enable file caching
-  timeout: number;              // Request timeout (ms)
-  llm?: {                       // LLM configuration
-    provider: 'openai' | 'anthropic' | 'ollama' | 'local';
+  pythonExtractorUrl?: string; // Python service URL
+  tempDir: string; // Temporary files directory
+  enableCaching: boolean; // Enable file caching
+  timeout: number; // Request timeout (ms)
+  llm?: {
+    // LLM configuration
+    provider: "openai" | "anthropic" | "ollama" | "local";
     apiKey?: string;
     modelName?: string;
   };
@@ -73,7 +74,7 @@ interface TransformerConfig {
 The library can extract data for various document types:
 
 - **Orders** - E-commerce order confirmations
-- **Invoices** - Bills and invoices  
+- **Invoices** - Bills and invoices
 - **Bookings** - Hotel/travel reservations
 - **Signatures** - Document signing requests
 - **Alerts** - System notifications
@@ -94,3 +95,4 @@ npm run dev
 
 # Start Python extractor
 npm run extractor:start
+```

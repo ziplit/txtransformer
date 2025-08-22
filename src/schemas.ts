@@ -17,13 +17,13 @@ export const EMAIL_CANONICAL_SCHEMA = {
           filename: { type: "string" },
           contentType: { type: "string" },
           size: { type: "integer" },
-          localPath: { type: "string" }
+          localPath: { type: "string" },
         },
-        required: ["contentType", "size"]
-      }
-    }
+        required: ["contentType", "size"],
+      },
+    },
   },
-  required: ["id", "subject", "from", "to", "text", "attachments"]
+  required: ["id", "subject", "from", "to", "text", "attachments"],
 } as const;
 
 export const META_SCHEMA_DESCRIPTOR = {
@@ -37,9 +37,9 @@ export const META_SCHEMA_DESCRIPTOR = {
     properties: { type: "object" },
     required: { type: "array", items: { type: "string" } },
     vendor_tags: { type: "array", items: { type: "string" } },
-    examples: { type: "array" }
+    examples: { type: "array" },
   },
-  required: ["id", "title", "domain", "version", "properties", "required"]
+  required: ["id", "title", "domain", "version", "properties", "required"],
 } as const;
 
 export const ORDER_SCHEMA = {
@@ -58,17 +58,17 @@ export const ORDER_SCHEMA = {
           sku: { type: "string" },
           name: { type: "string" },
           price: { type: "number" },
-          quantity: { type: "integer" }
-        }
-      }
+          quantity: { type: "integer" },
+        },
+      },
     },
     billingAddress: { type: "object" },
     shippingAddress: { type: "object" },
     price: { type: "number" },
     currency: { type: "string" },
-    expectedDeliveryDate: { type: "string", format: "date" }
+    expectedDeliveryDate: { type: "string", format: "date" },
   },
-  required: ["orderId", "items"]
+  required: ["orderId", "items"],
 } as const;
 
 export const INVOICE_SCHEMA = {
@@ -90,16 +90,16 @@ export const INVOICE_SCHEMA = {
           description: { type: "string" },
           quantity: { type: "integer" },
           unitPrice: { type: "number" },
-          total: { type: "number" }
-        }
-      }
+          total: { type: "number" },
+        },
+      },
     },
     subtotal: { type: "number" },
     tax: { type: "number" },
     total: { type: "number" },
-    currency: { type: "string" }
+    currency: { type: "string" },
   },
-  required: ["invoiceNumber", "total"]
+  required: ["invoiceNumber", "total"],
 } as const;
 
 export const BOOKING_SCHEMA = {
@@ -118,9 +118,9 @@ export const BOOKING_SCHEMA = {
     checkOutDate: { type: "string", format: "date" },
     guestsCount: { type: "integer" },
     price: { type: "number" },
-    currency: { type: "string" }
+    currency: { type: "string" },
   },
-  required: ["bookingId", "checkInDate", "checkOutDate"]
+  required: ["bookingId", "checkInDate", "checkOutDate"],
 } as const;
 
 export const SIGNATURE_REQUEST_SCHEMA = {
@@ -140,15 +140,15 @@ export const SIGNATURE_REQUEST_SCHEMA = {
         properties: {
           name: { type: "string" },
           email: { type: "string" },
-          status: { type: "string" }
-        }
-      }
+          status: { type: "string" },
+        },
+      },
     },
     status: { type: "string" },
     deadline: { type: "string", format: "date" },
-    documentList: { type: "array", items: { type: "string" } }
+    documentList: { type: "array", items: { type: "string" } },
   },
-  required: ["envelopeId", "status"]
+  required: ["envelopeId", "status"],
 } as const;
 
 export const ALERT_SCHEMA = {
@@ -164,9 +164,9 @@ export const ALERT_SCHEMA = {
     eventTime: { type: "string", format: "date-time" },
     message: { type: "string" },
     actionRequired: { type: "boolean" },
-    link: { type: "string" }
+    link: { type: "string" },
   },
-  required: ["severity", "message"]
+  required: ["severity", "message"],
 } as const;
 
 export const SUPPORT_FOLLOWUP_SCHEMA = {
@@ -182,9 +182,9 @@ export const SUPPORT_FOLLOWUP_SCHEMA = {
     assignee: { type: "string" },
     lastUpdateTime: { type: "string", format: "date-time" },
     nextAction: { type: "string" },
-    threadSummary: { type: "string" }
+    threadSummary: { type: "string" },
   },
-  required: ["ticketId", "subject"]
+  required: ["ticketId", "subject"],
 } as const;
 
 export const GENERIC_MESSAGE_SCHEMA = {
@@ -198,9 +198,9 @@ export const GENERIC_MESSAGE_SCHEMA = {
     to: { type: "array", items: { type: "string" } },
     date: { type: "string" },
     bodySummary: { type: "string" },
-    detectedEntities: { type: "array", items: { type: "string" } }
+    detectedEntities: { type: "array", items: { type: "string" } },
   },
-  required: ["subject"]
+  required: ["subject"],
 } as const;
 
 // Export all schemas for easy access
@@ -211,5 +211,5 @@ export const DOMAIN_SCHEMAS = {
   signature_request: SIGNATURE_REQUEST_SCHEMA,
   alert: ALERT_SCHEMA,
   support_followup: SUPPORT_FOLLOWUP_SCHEMA,
-  generic: GENERIC_MESSAGE_SCHEMA
+  generic: GENERIC_MESSAGE_SCHEMA,
 } as const;

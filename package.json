@@ -12,6 +12,7 @@
     "dev": "nodemon --exec ts-node examples/basic.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "npm run build",
+    "prettier": "prettier --write .",
     "extractor:build": "cd python-extractor && docker build -t email-extractor .",
     "extractor:start": "docker run --rm -d -p 8000:8000 --name email-extractor email-extractor",
     "extractor:stop": "docker stop email-extractor || true"

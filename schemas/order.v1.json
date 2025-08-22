@@ -5,7 +5,14 @@
   "description": "E-commerce order confirmation data structure",
   "domain": "order",
   "version": "v1",
-  "vendor_tags": ["amazon", "mercado_livre", "shopify", "walmart", "target", "ebay"],
+  "vendor_tags": [
+    "amazon",
+    "mercado_livre",
+    "shopify",
+    "walmart",
+    "target",
+    "ebay"
+  ],
   "type": "object",
   "properties": {
     "orderId": {
@@ -13,7 +20,7 @@
       "description": "Unique order identifier"
     },
     "orderNumber": {
-      "type": "string", 
+      "type": "string",
       "description": "Human-readable order number (may differ from orderId)"
     },
     "orderDate": {
@@ -81,7 +88,7 @@
       "description": "Billing address"
     },
     "shippingAddress": {
-      "$ref": "#/definitions/address", 
+      "$ref": "#/definitions/address",
       "description": "Shipping address"
     },
     "subtotal": {
@@ -93,7 +100,7 @@
       "type": "number",
       "minimum": 0,
       "description": "Tax amount"
-    }, 
+    },
     "shipping": {
       "type": "number",
       "minimum": 0,
@@ -170,8 +177,8 @@
         }
       ],
       "subtotal": 99.99,
-      "tax": 8.00,
-      "shipping": 0.00,
+      "tax": 8.0,
+      "shipping": 0.0,
       "total": 107.99,
       "currency": "USD",
       "status": "confirmed"

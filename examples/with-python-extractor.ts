@@ -1,15 +1,15 @@
-import { EmailTransformer } from '../src';
-import * as fs from 'fs-extra';
+import { EmailTransformer } from "../src";
+import * as fs from "fs-extra";
 
 async function exampleWithExtractor() {
-  console.log('Email Transformer with Python Extractor - Example');
+  console.log("Email Transformer with Python Extractor - Example");
 
   // Create transformer with Python extractor
   const transformer = new EmailTransformer({
-    pythonExtractorUrl: 'http://localhost:8000',
-    tempDir: './temp',
+    pythonExtractorUrl: "http://localhost:8000",
+    tempDir: "./temp",
     enableCaching: true,
-    timeout: 60000
+    timeout: 60000,
   });
 
   // Sample email with order confirmation
@@ -72,7 +72,7 @@ async function exampleWithExtractor() {
   `;
 
   try {
-    console.log('Processing order confirmation email...');
+    console.log("Processing order confirmation email...");
     // TODO: Uncomment when implementation is ready
     // const orderResult = await transformer.transform(orderEmail);
     // console.log('Order extraction result:', {
@@ -83,7 +83,7 @@ async function exampleWithExtractor() {
     //   itemCount: orderResult.data.items?.length
     // });
 
-    console.log('Processing invoice email...');
+    console.log("Processing invoice email...");
     // TODO: Uncomment when implementation is ready
     // const invoiceResult = await transformer.transform(invoiceEmail);
     // console.log('Invoice extraction result:', {
@@ -94,17 +94,16 @@ async function exampleWithExtractor() {
     //   dueDate: invoiceResult.data.dueDate
     // });
 
-    console.log('Example completed! Ready for implementation.');
-
+    console.log("Example completed! Ready for implementation.");
   } catch (error) {
-    console.error('Error processing emails:', error);
+    console.error("Error processing emails:", error);
   }
 }
 
 // Check if Python extractor is available
 async function checkExtractor() {
   try {
-    const response = await fetch('http://localhost:8000/healthz');
+    const response = await fetch("http://localhost:8000/healthz");
     return response.ok;
   } catch {
     return false;
@@ -113,11 +112,11 @@ async function checkExtractor() {
 
 async function main() {
   const extractorAvailable = await checkExtractor();
-  
+
   if (!extractorAvailable) {
-    console.log('Python extractor not available. Start it with:');
-    console.log('npm run extractor:build && npm run extractor:start');
-    console.log('Running example without extractor...');
+    console.log("Python extractor not available. Start it with:");
+    console.log("npm run extractor:build && npm run extractor:start");
+    console.log("Running example without extractor...");
   }
 
   await exampleWithExtractor();

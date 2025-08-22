@@ -145,7 +145,14 @@
       "description": "Additional notes or terms"
     }
   },
-  "required": ["invoiceNumber", "issueDate", "vendor", "customer", "lineItems", "total"],
+  "required": [
+    "invoiceNumber",
+    "issueDate",
+    "vendor",
+    "customer",
+    "lineItems",
+    "total"
+  ],
   "definitions": {
     "address": {
       "type": "object",

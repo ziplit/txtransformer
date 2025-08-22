@@ -5,7 +5,13 @@
   "description": "Digital document signature request notification",
   "domain": "signature_request",
   "version": "v1",
-  "vendor_tags": ["docusign", "adobesign", "hellosign", "pandadoc", "signrequest"],
+  "vendor_tags": [
+    "docusign",
+    "adobesign",
+    "hellosign",
+    "pandadoc",
+    "signrequest"
+  ],
   "type": "object",
   "properties": {
     "envelopeId": {
@@ -89,7 +95,15 @@
     },
     "status": {
       "type": "string",
-      "enum": ["sent", "pending", "partially_signed", "completed", "declined", "cancelled", "expired"],
+      "enum": [
+        "sent",
+        "pending",
+        "partially_signed",
+        "completed",
+        "declined",
+        "cancelled",
+        "expired"
+      ],
       "description": "Overall status of the signature request"
     },
     "deadline": {

@@ -31,7 +31,15 @@
     },
     "propertyType": {
       "type": "string",
-      "enum": ["hotel", "apartment", "house", "room", "resort", "hostel", "other"],
+      "enum": [
+        "hotel",
+        "apartment",
+        "house",
+        "room",
+        "resort",
+        "hostel",
+        "other"
+      ],
       "description": "Type of accommodation"
     },
     "address": {

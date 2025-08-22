@@ -1,27 +1,27 @@
 export interface TransformerConfig {
   /** URL of the Python extractor service (optional) */
   pythonExtractorUrl?: string;
-  
+
   /** Directory for temporary files */
   tempDir: string;
-  
+
   /** Enable file content caching */
   enableCaching: boolean;
-  
+
   /** Request timeout in milliseconds */
   timeout: number;
-  
+
   /** LLM provider configuration */
   llm?: {
-    provider: 'openai' | 'anthropic' | 'ollama' | 'local';
+    provider: "openai" | "anthropic" | "ollama" | "local";
     apiKey?: string;
     modelName?: string;
     baseUrl?: string;
   };
-  
+
   /** Storage adapter configuration */
   storage?: {
-    type: 'filesystem' | 'memory' | 'custom';
+    type: "filesystem" | "memory" | "custom";
     adapter?: StorageAdapter;
   };
 }
@@ -29,19 +29,19 @@ export interface TransformerConfig {
 export interface ExtractionResult {
   /** Unique ID for this extraction */
   id: string;
-  
+
   /** Detected schema type */
   schemaType: string;
-  
+
   /** Extracted structured data */
   data: Record<string, any>;
-  
+
   /** Overall confidence score (0-1) */
   confidence: number;
-  
+
   /** Provenance information */
   provenance: ProvenanceInfo;
-  
+
   /** Processing metadata */
   metadata: {
     processingTime: number;
@@ -53,24 +53,24 @@ export interface ExtractionResult {
 export interface ProvenanceInfo {
   /** Source of each extracted field */
   fieldSources: Record<string, FieldProvenance>;
-  
+
   /** Extraction method used */
   extractionMethods: string[];
-  
+
   /** Confidence breakdown by method */
   methodConfidence: Record<string, number>;
 }
 
 export interface FieldProvenance {
   /** Extraction method that provided this field */
-  method: 'regex' | 'nlp' | 'llm' | 'table' | 'ocr';
-  
+  method: "regex" | "nlp" | "llm" | "table" | "ocr";
+
   /** Confidence score for this field */
   confidence: number;
-  
+
   /** Evidence supporting this extraction */
   evidence: string;
-  
+
   /** Source location (e.g., email body, attachment) */
   sourceLocation: string;
 }
@@ -105,10 +105,10 @@ export interface StorageAdapter {
 export interface ExtractorCandidates {
   /** Task/email ID */
   id: string;
-  
+
   /** Extracted field candidates */
   candidates: Record<string, FieldCandidate[]>;
-  
+
   /** Processing metadata */
   metadata: {
     processingTime: number;
@@ -119,16 +119,16 @@ export interface ExtractorCandidates {
 export interface FieldCandidate {
   /** Field name */
   field: string;
-  
+
   /** Extracted value */
   value: any;
-  
+
   /** Confidence score */
   confidence: number;
-  
+
   /** Extraction method */
   method: string;
-  
+
   /** Supporting evidence */
   evidence: string;
 }
@@ -168,7 +168,7 @@ export interface OrderData {
   discount?: number;
   total: number;
   currency?: string;
-  status?: 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status?: "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   trackingNumber?: string;
   expectedDeliveryDate?: string;
 }
@@ -203,7 +203,7 @@ export interface InvoiceData {
   discount?: number;
   total: number;
   currency?: string;
-  status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  status?: "draft" | "sent" | "paid" | "overdue" | "cancelled";
   paymentTerms?: string;
   notes?: string;
 }
@@ -214,7 +214,14 @@ export interface BookingData {
   provider?: string;
   bookingDate?: string;
   propertyName?: string;
-  propertyType?: 'hotel' | 'apartment' | 'house' | 'room' | 'resort' | 'hostel' | 'other';
+  propertyType?:
+    | "hotel"
+    | "apartment"
+    | "house"
+    | "room"
+    | "resort"
+    | "hostel"
+    | "other";
   address?: Address;
   guest?: {
     name?: string;
@@ -245,7 +252,7 @@ export interface BookingData {
     total?: number;
   };
   currency?: string;
-  status?: 'confirmed' | 'pending' | 'cancelled' | 'completed';
+  status?: "confirmed" | "pending" | "cancelled" | "completed";
   cancellationPolicy?: string;
   specialRequests?: string;
 }
@@ -266,11 +273,18 @@ export interface SignatureRequestData {
     name?: string;
     email: string;
     role?: string;
-    status: 'pending' | 'signed' | 'declined' | 'delivered' | 'completed';
+    status: "pending" | "signed" | "declined" | "delivered" | "completed";
     signedDate?: string;
     order?: number;
   }>;
-  status: 'sent' | 'pending' | 'partially_signed' | 'completed' | 'declined' | 'cancelled' | 'expired';
+  status:
+    | "sent"
+    | "pending"
+    | "partially_signed"
+    | "completed"
+    | "declined"
+    | "cancelled"
+    | "expired";
   deadline?: string;
   expiryDate?: string;
   documentList?: Array<{
@@ -278,7 +292,7 @@ export interface SignatureRequestData {
     pageCount?: number;
     size?: number;
   }>;
-  priority?: 'low' | 'normal' | 'high' | 'urgent';
+  priority?: "low" | "normal" | "high" | "urgent";
   message?: string;
   securitySettings?: {
     accessCode?: boolean;
@@ -292,11 +306,11 @@ export interface AlertData {
   incidentId?: string;
   source?: string;
   monitor?: string;
-  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
-  priority?: 'p1' | 'p2' | 'p3' | 'p4' | 'p5';
-  status?: 'triggered' | 'acknowledged' | 'resolved' | 'suppressed';
+  severity: "critical" | "high" | "medium" | "low" | "info";
+  priority?: "p1" | "p2" | "p3" | "p4" | "p5";
+  status?: "triggered" | "acknowledged" | "resolved" | "suppressed";
   component?: string;
-  environment?: 'production' | 'staging' | 'development' | 'test';
+  environment?: "production" | "staging" | "development" | "test";
   eventTime: string;
   detectedTime?: string;
   resolvedTime?: string;
@@ -326,8 +340,14 @@ export interface SupportFollowupData {
   provider?: string;
   subject: string;
   description?: string;
-  status: 'open' | 'pending' | 'in_progress' | 'resolved' | 'closed' | 'on_hold';
-  priority?: 'low' | 'normal' | 'high' | 'urgent' | 'critical';
+  status:
+    | "open"
+    | "pending"
+    | "in_progress"
+    | "resolved"
+    | "closed"
+    | "on_hold";
+  priority?: "low" | "normal" | "high" | "urgent" | "critical";
   category?: string;
   customer?: {
     name?: string;
@@ -357,14 +377,14 @@ export interface SupportFollowupData {
     resolutionTime?: number;
   };
   nextAction?: string;
-  actionBy?: 'customer' | 'agent' | 'system' | 'vendor';
+  actionBy?: "customer" | "agent" | "system" | "vendor";
   dueDate?: string;
   threadSummary?: string;
   lastMessage?: {
     from?: string;
     content?: string;
     timestamp?: string;
-    type?: 'note' | 'public_reply' | 'private_note' | 'system';
+    type?: "note" | "public_reply" | "private_note" | "system";
   };
   tags?: string[];
   satisfactionRating?: {
@@ -388,25 +408,56 @@ export interface GenericMessageData {
   }>;
   date?: string;
   classification: {
-    category: 'transactional' | 'promotional' | 'notification' | 'newsletter' | 'personal' | 'automated' | 'receipt' | 'reminder' | 'announcement' | 'other';
-    intent: 'informational' | 'action_required' | 'confirmation' | 'request' | 'update' | 'marketing' | 'social' | 'security' | 'other';
+    category:
+      | "transactional"
+      | "promotional"
+      | "notification"
+      | "newsletter"
+      | "personal"
+      | "automated"
+      | "receipt"
+      | "reminder"
+      | "announcement"
+      | "other";
+    intent:
+      | "informational"
+      | "action_required"
+      | "confirmation"
+      | "request"
+      | "update"
+      | "marketing"
+      | "social"
+      | "security"
+      | "other";
     confidence?: number;
   };
   bodySummary?: string;
   keyPhrases?: string[];
   detectedEntities?: Array<{
     text: string;
-    type: 'person' | 'organization' | 'location' | 'date' | 'time' | 'money' | 'phone' | 'email' | 'url' | 'product' | 'event' | 'other';
+    type:
+      | "person"
+      | "organization"
+      | "location"
+      | "date"
+      | "time"
+      | "money"
+      | "phone"
+      | "email"
+      | "url"
+      | "product"
+      | "event"
+      | "other";
     confidence?: number;
   }>;
   actionItems?: Array<{
     action: string;
     dueDate?: string;
-    priority?: 'low' | 'medium' | 'high';
+    priority?: "low" | "medium" | "high";
     assignee?: string;
   }>;
   sentiment?: {
-    polarity: 'positive' | 'neutral' | 'negative';
+    polarity: "positive" | "neutral" | "negative";
     score?: number;
     confidence?: number;
   };
@@ -418,11 +469,11 @@ export interface GenericMessageData {
 }
 
 // Union type for all domain data types
-export type DomainData = 
-  | OrderData 
-  | InvoiceData 
-  | BookingData 
-  | SignatureRequestData 
-  | AlertData 
-  | SupportFollowupData 
+export type DomainData =
+  | OrderData
+  | InvoiceData
+  | BookingData
+  | SignatureRequestData
+  | AlertData
+  | SupportFollowupData
   | GenericMessageData;
