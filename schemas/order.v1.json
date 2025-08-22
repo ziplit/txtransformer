@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:order:v1",
+  "title": "Order Confirmation",
+  "description": "E-commerce order confirmation data structure",
+  "domain": "order",
+  "version": "v1",
+  "vendor_tags": ["amazon", "mercado_livre", "shopify", "walmart", "target", "ebay"],
+  "type": "object",
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "description": "Unique order identifier"
+    },
+    "orderNumber": {
+      "type": "string", 
+      "description": "Human-readable order number (may differ from orderId)"
+    },
+    "orderDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time when the order was placed"
+    },
+    "vendor": {
+      "type": "string",
+      "description": "Name of the vendor/retailer"
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "description": "Customer information"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "description": "Stock keeping unit identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Unit price of the item"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Quantity ordered"
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total price for this line item"
+          }
+        },
+        "required": ["name", "price", "quantity"]
+      },
+      "minItems": 1,
+      "description": "Array of ordered items"
+    },
+    "billingAddress": {
+      "$ref": "#/definitions/address",
+      "description": "Billing address"
+    },
+    "shippingAddress": {
+      "$ref": "#/definitions/address", 
+      "description": "Shipping address"
+    },
+    "subtotal": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Subtotal before taxes and fees"
+    },
+    "tax": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Tax amount"
+    }, 
+    "shipping": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Shipping cost"
+    },
+    "discount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Discount amount"
+    },
+    "total": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Final total amount"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "Currency code (ISO 4217)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["confirmed", "processing", "shipped", "delivered", "cancelled"],
+      "description": "Order status"
+    },
+    "trackingNumber": {
+      "type": "string",
+      "description": "Shipping tracking number"
+    },
+    "expectedDeliveryDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected delivery date"
+    }
+  },
+  "required": ["orderId", "items", "total"],
+  "definitions": {
+    "address": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "orderId": "123-4567890",
+      "orderDate": "2024-08-22T10:30:00Z",
+      "vendor": "Amazon",
+      "items": [
+        {
+          "sku": "B08N5WRWNW",
+          "name": "Wireless Bluetooth Headphones",
+          "price": 99.99,
+          "quantity": 1,
+          "total": 99.99
+        }
+      ],
+      "subtotal": 99.99,
+      "tax": 8.00,
+      "shipping": 0.00,
+      "total": 107.99,
+      "currency": "USD",
+      "status": "confirmed"
+    }
+  ]
+}

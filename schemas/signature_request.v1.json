@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:signature_request:v1",
+  "title": "Signature Request",
+  "description": "Digital document signature request notification",
+  "domain": "signature_request",
+  "version": "v1",
+  "vendor_tags": ["docusign", "adobesign", "hellosign", "pandadoc", "signrequest"],
+  "type": "object",
+  "properties": {
+    "envelopeId": {
+      "type": "string",
+      "description": "Unique envelope or request identifier"
+    },
+    "requestId": {
+      "type": "string",
+      "description": "Alternative request identifier"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Digital signature service provider"
+    },
+    "requestDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time when signature was requested"
+    },
+    "documentTitle": {
+      "type": "string",
+      "description": "Title or name of the document to be signed"
+    },
+    "documentDescription": {
+      "type": "string",
+      "description": "Description of the document"
+    },
+    "sender": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "company": {
+          "type": "string"
+        }
+      },
+      "required": ["email"],
+      "description": "Person who sent the signature request"
+    },
+    "signers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "description": "Signer role (e.g., 'Signer', 'Approver', 'CC')"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "signed", "declined", "delivered", "completed"],
+            "description": "Current status of this signer"
+          },
+          "signedDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when signed (if applicable)"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Signing order"
+          }
+        },
+        "required": ["email", "status"]
+      },
+      "minItems": 1,
+      "description": "List of people who need to sign"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["sent", "pending", "partially_signed", "completed", "declined", "cancelled", "expired"],
+      "description": "Overall status of the signature request"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "Deadline for completing signatures"
+    },
+    "expiryDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the request expires"
+    },
+    "documentList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "pageCount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "File size in bytes"
+          }
+        },
+        "required": ["name"]
+      },
+      "description": "List of documents in the envelope"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "urgent"],
+      "description": "Priority level of the signature request"
+    },
+    "message": {
+      "type": "string",
+      "description": "Message from the sender to signers"
+    },
+    "securitySettings": {
+      "type": "object",
+      "properties": {
+        "accessCode": {
+          "type": "boolean",
+          "description": "Whether access code is required"
+        },
+        "phoneAuthentication": {
+          "type": "boolean",
+          "description": "Whether phone authentication is required"
+        },
+        "idVerification": {
+          "type": "boolean",
+          "description": "Whether ID verification is required"
+        }
+      },
+      "description": "Security settings for the request"
+    }
+  },
+  "required": ["envelopeId", "documentTitle", "signers", "status"],
+  "examples": [
+    {
+      "envelopeId": "ENV-12345-ABCD",
+      "provider": "DocuSign",
+      "documentTitle": "Employment Agreement - John Doe",
+      "sender": {
+        "name": "HR Department",
+        "email": "hr@company.com",
+        "company": "ACME Corp"
+      },
+      "signers": [
+        {
+          "name": "John Doe",
+          "email": "john@example.com",
+          "role": "Employee",
+          "status": "pending",
+          "order": 1
+        },
+        {
+          "name": "Jane Smith",
+          "email": "jane@company.com",
+          "role": "Manager",
+          "status": "pending",
+          "order": 2
+        }
+      ],
+      "status": "sent",
+      "deadline": "2024-09-01",
+      "documentList": [
+        {
+          "name": "Employment_Agreement.pdf",
+          "pageCount": 5
+        }
+      ],
+      "priority": "normal"
+    }
+  ]
+}

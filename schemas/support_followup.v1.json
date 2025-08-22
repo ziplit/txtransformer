@@ -1,0 +1,230 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:support_followup:v1",
+  "title": "Support Follow-up",
+  "description": "Customer support ticket follow-up or update",
+  "domain": "support_followup",
+  "version": "v1",
+  "vendor_tags": ["zendesk", "freshdesk", "servicenow", "jira", "intercom", "salesforce"],
+  "type": "object",
+  "properties": {
+    "ticketId": {
+      "type": "string",
+      "description": "Unique support ticket identifier"
+    },
+    "ticketNumber": {
+      "type": "string",
+      "description": "Human-readable ticket number"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Support platform or service provider"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Ticket subject or title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Ticket description or summary"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "pending", "in_progress", "resolved", "closed", "on_hold"],
+      "description": "Current ticket status"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "urgent", "critical"],
+      "description": "Ticket priority level"
+    },
+    "category": {
+      "type": "string",
+      "description": "Support category or type"
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "company": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "customerId": {
+          "type": "string"
+        }
+      },
+      "required": ["email"],
+      "description": "Customer information"
+    },
+    "assignee": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "team": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      },
+      "description": "Assigned support agent or team"
+    },
+    "createdTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the ticket was originally created"
+    },
+    "lastUpdateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "responseTime": {
+      "type": "object",
+      "properties": {
+        "firstResponse": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "nextResponse": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "slaDeadline": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Response time tracking"
+    },
+    "resolution": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "resolution": {
+          "type": "string"
+        },
+        "resolvedBy": {
+          "type": "string"
+        },
+        "resolvedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolutionTime": {
+          "type": "integer",
+          "description": "Time to resolution in minutes"
+        }
+      },
+      "description": "Resolution details (if resolved)"
+    },
+    "nextAction": {
+      "type": "string",
+      "description": "Next action required or planned"
+    },
+    "actionBy": {
+      "type": "string",
+      "enum": ["customer", "agent", "system", "vendor"],
+      "description": "Who should take the next action"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Due date for next action"
+    },
+    "threadSummary": {
+      "type": "string",
+      "description": "Summary of the conversation thread"
+    },
+    "lastMessage": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["note", "public_reply", "private_note", "system"]
+        }
+      },
+      "description": "Most recent message or update"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags or labels associated with the ticket"
+    },
+    "satisfactionRating": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "comment": {
+          "type": "string"
+        },
+        "submittedTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Customer satisfaction rating (if provided)"
+    }
+  },
+  "required": ["ticketId", "subject", "status"],
+  "examples": [
+    {
+      "ticketId": "ZD-12345",
+      "ticketNumber": "#12345",
+      "provider": "Zendesk",
+      "subject": "Unable to login to account",
+      "status": "in_progress",
+      "priority": "high",
+      "category": "Account Access",
+      "customer": {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "company": "ACME Corp"
+      },
+      "assignee": {
+        "name": "Sarah Johnson",
+        "email": "sarah@support.com",
+        "team": "Technical Support"
+      },
+      "createdTime": "2024-08-20T09:00:00Z",
+      "lastUpdateTime": "2024-08-22T14:30:00Z",
+      "nextAction": "Provide password reset instructions",
+      "actionBy": "agent",
+      "threadSummary": "Customer reported login issues after password reset. Investigating account status and providing assistance.",
+      "tags": ["login", "password", "urgent"]
+    }
+  ]
+}

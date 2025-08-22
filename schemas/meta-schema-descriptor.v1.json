@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:meta:schema-descriptor:v1",
+  "title": "Schema Descriptor",
+  "description": "Metadata descriptor for domain-specific schemas",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^urn:ziplit:schema:[a-z0-9_]+:v\\d+$",
+      "description": "Unique schema identifier in URN format"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable schema title"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "order",
+        "invoice", 
+        "booking",
+        "signature_request",
+        "alert",
+        "support_followup",
+        "generic"
+      ],
+      "description": "Domain category for the schema"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^v\\d+(?:\\.\\d+)*$",
+      "description": "Schema version following semantic versioning"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the schema purpose"
+    },
+    "properties": {
+      "type": "object",
+      "description": "JSON Schema properties definition"
+    },
+    "required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of required field names"
+    },
+    "vendor_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags identifying specific vendors or services"
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Example data that conforms to this schema"
+    },
+    "confidence_thresholds": {
+      "type": "object",
+      "properties": {
+        "minimum": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum confidence required to use this schema"
+        },
+        "high": {
+          "type": "number", 
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Threshold for high confidence classification"
+        }
+      },
+      "description": "Confidence thresholds for schema selection"
+    }
+  },
+  "required": ["id", "title", "domain", "version", "properties", "required"]
+}

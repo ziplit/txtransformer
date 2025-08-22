@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:email-canonical:v1",
+  "title": "Email Canonical",
+  "description": "Canonical representation of parsed email data",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the email"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line"
+    },
+    "from": {
+      "type": "string",
+      "description": "Sender email address"
+    },
+    "to": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of recipient email addresses"
+    },
+    "cc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of CC recipient email addresses"
+    },
+    "bcc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of BCC recipient email addresses"
+    },
+    "headers": {
+      "type": "object",
+      "description": "Raw email headers as key-value pairs"
+    },
+    "text": {
+      "type": "string",
+      "description": "Plain text body of the email"
+    },
+    "html": {
+      "type": "string",
+      "description": "HTML body of the email"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Email timestamp"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "Original filename of the attachment"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "MIME type of the attachment"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Size of the attachment in bytes"
+          },
+          "content": {
+            "type": "string",
+            "contentEncoding": "base64",
+            "description": "Base64 encoded attachment content"
+          },
+          "localPath": {
+            "type": "string",
+            "description": "Local filesystem path to the attachment"
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the attachment content"
+          }
+        },
+        "required": ["contentType", "size"]
+      },
+      "description": "Array of email attachments"
+    }
+  },
+  "required": ["id", "subject", "from", "to", "text", "attachments"]
+}

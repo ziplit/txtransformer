@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:alert:v1",
+  "title": "System Alert",
+  "description": "System monitoring alert or notification",
+  "domain": "alert",
+  "version": "v1",
+  "vendor_tags": ["datadog", "newrelic", "pagerduty", "opsgenie", "splunk", "sentry"],
+  "type": "object",
+  "properties": {
+    "alertId": {
+      "type": "string",
+      "description": "Unique alert identifier"
+    },
+    "incidentId": {
+      "type": "string",
+      "description": "Related incident identifier"
+    },
+    "source": {
+      "type": "string",
+      "description": "System or service that generated the alert"
+    },
+    "monitor": {
+      "type": "string",
+      "description": "Name of the monitor or check that triggered"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "info"],
+      "description": "Alert severity level"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["p1", "p2", "p3", "p4", "p5"],
+      "description": "Priority classification"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["triggered", "acknowledged", "resolved", "suppressed"],
+      "description": "Current status of the alert"
+    },
+    "component": {
+      "type": "string",
+      "description": "Affected system component or service"
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["production", "staging", "development", "test"],
+      "description": "Environment where the alert occurred"
+    },
+    "eventTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the alert event occurred"
+    },
+    "detectedTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the alert was detected"
+    },
+    "resolvedTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the alert was resolved (if applicable)"
+    },
+    "message": {
+      "type": "string",
+      "description": "Alert message or description"
+    },
+    "details": {
+      "type": "string",
+      "description": "Detailed information about the alert"
+    },
+    "actionRequired": {
+      "type": "boolean",
+      "description": "Whether immediate action is required"
+    },
+    "assignee": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "team": {
+          "type": "string"
+        }
+      },
+      "description": "Person or team assigned to handle the alert"
+    },
+    "escalationPolicy": {
+      "type": "string",
+      "description": "Escalation policy being followed"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags or labels associated with the alert"
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "threshold": {
+          "type": "number",
+          "description": "Threshold value that was breached"
+        },
+        "currentValue": {
+          "type": "number",
+          "description": "Current metric value"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement"
+        }
+      },
+      "description": "Metric information related to the alert"
+    },
+    "link": {
+      "type": "string",
+      "format": "uri",
+      "description": "Link to dashboard, runbook, or more information"
+    },
+    "runbook": {
+      "type": "string",
+      "format": "uri",
+      "description": "Link to runbook or troubleshooting guide"
+    },
+    "affectedHosts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of affected hosts or services"
+    }
+  },
+  "required": ["alertId", "severity", "message", "eventTime"],
+  "examples": [
+    {
+      "alertId": "ALERT-2024-08-001",
+      "source": "DataDog",
+      "monitor": "High CPU Usage",
+      "severity": "high",
+      "status": "triggered",
+      "component": "web-server",
+      "environment": "production",
+      "eventTime": "2024-08-22T14:30:00Z",
+      "message": "CPU usage above 90% threshold",
+      "details": "Web server CPU usage has been above 90% for the last 5 minutes",
+      "actionRequired": true,
+      "metrics": {
+        "threshold": 90,
+        "currentValue": 95.2,
+        "unit": "percent"
+      },
+      "affectedHosts": ["web-01.prod", "web-02.prod"],
+      "link": "https://app.datadoghq.com/alerts/123456"
+    }
+  ]
+}

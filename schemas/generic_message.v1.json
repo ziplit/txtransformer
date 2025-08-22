@@ -1,0 +1,264 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:generic_message:v1",
+  "title": "Generic Message",
+  "description": "Generic email message classification and basic information extraction",
+  "domain": "generic",
+  "version": "v1",
+  "type": "object",
+  "properties": {
+    "messageId": {
+      "type": "string",
+      "description": "Unique message identifier"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line"
+    },
+    "from": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Email domain"
+        }
+      },
+      "required": ["email"],
+      "description": "Sender information"
+    },
+    "to": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": ["email"]
+      },
+      "description": "Recipients"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Email timestamp"
+    },
+    "classification": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "transactional",
+            "promotional", 
+            "notification",
+            "newsletter",
+            "personal",
+            "automated",
+            "receipt",
+            "reminder",
+            "announcement",
+            "other"
+          ],
+          "description": "Email category classification"
+        },
+        "intent": {
+          "type": "string",
+          "enum": [
+            "informational",
+            "action_required",
+            "confirmation",
+            "request",
+            "update",
+            "marketing",
+            "social",
+            "security",
+            "other"
+          ],
+          "description": "Primary intent of the email"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Classification confidence score"
+        }
+      },
+      "required": ["category", "intent"],
+      "description": "Email classification information"
+    },
+    "bodySummary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Brief summary of email content"
+    },
+    "keyPhrases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "description": "Important phrases or keywords extracted from content"
+    },
+    "detectedEntities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "person",
+              "organization",
+              "location",
+              "date",
+              "time",
+              "money",
+              "phone",
+              "email",
+              "url",
+              "product",
+              "event",
+              "other"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": ["text", "type"]
+      },
+      "description": "Named entities detected in the email"
+    },
+    "actionItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "assignee": {
+            "type": "string"
+          }
+        },
+        "required": ["action"]
+      },
+      "description": "Extracted action items or tasks"
+    },
+    "sentiment": {
+      "type": "object",
+      "properties": {
+        "polarity": {
+          "type": "string",
+          "enum": ["positive", "neutral", "negative"]
+        },
+        "score": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "Sentiment score (-1 to 1)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "description": "Sentiment analysis of the email content"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+      "description": "Detected language (ISO 639-1 format)"
+    },
+    "hasAttachments": {
+      "type": "boolean",
+      "description": "Whether the email has attachments"
+    },
+    "attachmentTypes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Types of attachments present"
+    },
+    "isAutomated": {
+      "type": "boolean",
+      "description": "Whether the email appears to be automated"
+    },
+    "spamScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Spam probability score"
+    }
+  },
+  "required": ["subject", "from", "classification"],
+  "examples": [
+    {
+      "messageId": "MSG-12345",
+      "subject": "Welcome to our service!",
+      "from": {
+        "name": "ACME Corp",
+        "email": "welcome@acme.com",
+        "domain": "acme.com"
+      },
+      "to": [
+        {
+          "name": "John Doe",
+          "email": "john@example.com"
+        }
+      ],
+      "date": "2024-08-22T10:30:00Z",
+      "classification": {
+        "category": "transactional",
+        "intent": "informational",
+        "confidence": 0.95
+      },
+      "bodySummary": "Welcome email with account setup instructions and getting started guide.",
+      "keyPhrases": ["welcome", "account setup", "getting started"],
+      "detectedEntities": [
+        {
+          "text": "ACME Corp",
+          "type": "organization",
+          "confidence": 0.9
+        }
+      ],
+      "sentiment": {
+        "polarity": "positive",
+        "score": 0.7,
+        "confidence": 0.8
+      },
+      "language": "en",
+      "hasAttachments": false,
+      "isAutomated": true,
+      "spamScore": 0.1
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:ziplit:schema:invoice:v1",
+  "title": "Invoice",
+  "description": "Invoice or bill data structure",
+  "domain": "invoice",
+  "version": "v1",
+  "vendor_tags": ["stripe", "paypal", "quickbooks", "freshbooks", "xero"],
+  "type": "object",
+  "properties": {
+    "invoiceNumber": {
+      "type": "string",
+      "description": "Unique invoice number"
+    },
+    "invoiceId": {
+      "type": "string",
+      "description": "System-generated invoice ID"
+    },
+    "issueDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the invoice was issued"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date payment is due"
+    },
+    "vendor": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "#/definitions/address"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "taxId": {
+          "type": "string",
+          "description": "Tax identification number"
+        }
+      },
+      "required": ["name"],
+      "description": "Vendor/company issuing the invoice"
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "#/definitions/address"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string"
+        }
+      },
+      "required": ["name"],
+      "description": "Customer being billed"
+    },
+    "lineItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the service or product"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Quantity of the item"
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Price per unit"
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total for this line item"
+          },
+          "taxRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Tax rate as decimal (0.08 = 8%)"
+          }
+        },
+        "required": ["description", "total"]
+      },
+      "minItems": 1,
+      "description": "Individual line items on the invoice"
+    },
+    "subtotal": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Subtotal before taxes"
+    },
+    "tax": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total tax amount"
+    },
+    "discount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Discount amount"
+    },
+    "total": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Final total amount due"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "Currency code (ISO 4217)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "sent", "paid", "overdue", "cancelled"],
+      "description": "Invoice status"
+    },
+    "paymentTerms": {
+      "type": "string",
+      "description": "Payment terms (e.g., 'Net 30', 'Due on receipt')"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or terms"
+    }
+  },
+  "required": ["invoiceNumber", "issueDate", "vendor", "customer", "lineItems", "total"],
+  "definitions": {
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "invoiceNumber": "INV-2024-001",
+      "issueDate": "2024-08-15",
+      "dueDate": "2024-08-30",
+      "vendor": {
+        "name": "ACME Corp",
+        "email": "billing@acme.com"
+      },
+      "customer": {
+        "name": "ABC Company Inc.",
+        "email": "accounts@abc.com"
+      },
+      "lineItems": [
+        {
+          "description": "Web Development Services",
+          "quantity": 40,
+          "unitPrice": 150,
+          "total": 6000
+        }
+      ],
+      "subtotal": 6000,
+      "tax": 480,
+      "total": 6480,
+      "currency": "USD",
+      "status": "sent"
+    }
+  ]
+}
